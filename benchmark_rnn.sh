@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Create a directory for experiment logs
-LOG_DIR="./experiment_rnn_logs"
+# Directory for experiment logs
+LOG_DIR="./experiment_rnn_logs/prioritized"
 mkdir -p $LOG_DIR
 
 run_experiment() {
@@ -13,52 +13,31 @@ run_experiment() {
   echo "Experiment $EXP_NAME completed. Logs saved to $LOG_DIR/${EXP_NAME}.log"
 }
 
-# 1. Effect of larger CNN models on caption quality
-echo "Starting: Effect of larger CNN models on caption quality"
+# Priority 1: Baseline experiments with varying LSTM hidden units (no fine-tuning)
+echo "Priority 1: Baseline experiments (RNN, varying hidden units, no fine-tuning)"
 
 for ENCODER in resnet18 resnet50 resnet101; do
-  CMD="python train.py --encoder-type $ENCODER --experiment-name ${ENCODER}_h512_bs64_ft0"
-  run_experiment "$CMD" "${ENCODER}_h512_bs64_ft0"
+  for HIDDEN_SIZE in 256; do
+    CMD="python train.py --decoder-hidden-size $HIDDEN_SIZE --encoder-type $ENCODER --experiment-name ${ENCODER}_h${HIDDEN_SIZE}_bs64_ft0 --fine-tune 0 --batch-size 64"
+    run_experiment "$CMD" "${ENCODER}_h${HIDDEN_SIZE}_bs64_ft0"
+  done
 done
 
-# 2. Effect of finetuning on caption quality
-echo "Starting: Effect of finetuning on caption quality"
-
-CMD="python train.py --encoder-type resnet18 --experiment-name resnet18_h512_bs64_ft1 --fine-tune 1"
-run_experiment "$CMD" "resnet18_h512_bs64_ft1"
-
-CMD="python train.py --encoder-type resnet50 --experiment-name resnet50_h512_bs32_ft1 --fine-tune 1 --batch-size 32"
-run_experiment "$CMD" "resnet50_h512_bs32_ft1"
-
-CMD="python train.py --encoder-type resnet101 --experiment-name resnet101_h512_bs32_ft1 --fine-tune 1 --batch-size 32"
-run_experiment "$CMD" "resnet101_h512_bs32_ft1"
-
-# 3. Effect of varying LSTM units
-echo "Starting: Effect of varying LSTM units"
-
-# Using ResNet18
-echo "Running with ResNet18"
-for HIDDEN_SIZE in 256 512 1024; do
-  CMD="python train.py --decoder-hidden-size $HIDDEN_SIZE --encoder-type resnet18 --experiment-name resnet18_h${HIDDEN_SIZE}_bs64_ft0"
-  run_experiment "$CMD" "resnet18_h${HIDDEN_SIZE}_bs64_ft0"
+for ENCODER in resnet18; do
+  for HIDDEN_SIZE in 512 1024; do
+    CMD="python train.py --decoder-hidden-size $HIDDEN_SIZE --encoder-type $ENCODER --experiment-name ${ENCODER}_h${HIDDEN_SIZE}_bs64_ft0 --fine-tune 0 --batch-size 64"
+    run_experiment "$CMD" "${ENCODER}_h${HIDDEN_SIZE}_bs64_ft0"
+  done
 done
 
-# Using ResNet50
-echo "Running with ResNet50"
-for HIDDEN_SIZE in 256 512; do
-  CMD="python train.py --decoder-hidden-size $HIDDEN_SIZE --encoder-type resnet50 --experiment-name resnet50_h${HIDDEN_SIZE}_bs64_ft0"
-  run_experiment "$CMD" "resnet50_h${HIDDEN_SIZE}_bs64_ft0"
-done
-CMD="python train.py --decoder-hidden-size 1024 --encoder-type resnet50 --experiment-name resnet50_h1024_bs32_ft0 --batch-size 32"
-run_experiment "$CMD" "resnet50_h1024_bs32_ft0"
+# Priority 2: Fine-tuning with varying LSTM hidden units
+echo "Priority 2: Fine-tuning experiments (RNN, varying hidden units)"
 
-# Using ResNet101
-echo "Running with ResNet101"
-for HIDDEN_SIZE in 256 512; do
-  CMD="python train.py --decoder-hidden-size $HIDDEN_SIZE --encoder-type resnet101 --experiment-name resnet101_h${HIDDEN_SIZE}_bs64_ft0"
-  run_experiment "$CMD" "resnet101_h${HIDDEN_SIZE}_bs64_ft0"
+for ENCODER in resnet18; do
+  for HIDDEN_SIZE in 256; do
+    CMD="python train.py --decoder-hidden-size $HIDDEN_SIZE --encoder-type $ENCODER --experiment-name ${ENCODER}_h${HIDDEN_SIZE}_bs64_ft1 --fine-tune 1 --batch-size 64"
+    run_experiment "$CMD" "${ENCODER}_h${HIDDEN_SIZE}_bs64_ft1"
+  done
 done
-CMD="python train.py --decoder-hidden-size 1024 --encoder-type resnet101 --experiment-name resnet101_h1024_bs32_ft0 --batch-size 32"
-run_experiment "$CMD" "resnet101_h1024_bs32_ft0"
 
-echo "All experiments completed."
+echo "Prioritized RNN experiments completed."
