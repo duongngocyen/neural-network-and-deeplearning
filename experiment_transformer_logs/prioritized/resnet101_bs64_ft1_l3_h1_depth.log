@@ -1,0 +1,56 @@
+[nltk_data] Downloading package wordnet to /home/ngocyen/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=ResNet101_Weights.IMAGENET1K_V1`. You can also use `weights=ResNet101_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Using cache found in /home/ngocyen/.cache/torch/hub/intel-isl_MiDaS_master
+Epochs are read correctly:  50
+Encoder type is read correctly:  resnet101
+Number of CNN channels being used:  2048
+Fine tune setting is set to:  True
+Label smoothing set to:  True
+Ground Truth captions:  ['the boy laying face down on a skateboard is being pushed along the ground by another boy', 'two girls play on a skateboard in a courtyard', 'two people play on a long skateboard', 'two small children in red shirts playing on a skateboard', 'two young children on a skateboard going across a sidewalk']
+  0%|          | 0/469 [00:00<?, ?it/s]  0%|          | 1/469 [00:06<48:03,  6.16s/it]  0%|          | 2/469 [00:10<40:31,  5.21s/it]  1%|          | 3/469 [00:15<39:53,  5.14s/it]  1%|          | 4/469 [00:20<38:50,  5.01s/it]  1%|          | 5/469 [00:25<38:15,  4.95s/it]  1%|▏         | 6/469 [00:35<52:56,  6.86s/it]  1%|▏         | 7/469 [00:41<48:12,  6.26s/it]  2%|▏         | 8/469 [00:46<45:35,  5.93s/it]  2%|▏         | 9/469 [00:49<39:09,  5.11s/it]  2%|▏         | 10/469 [00:54<39:02,  5.10s/it]  2%|▏         | 11/469 [00:58<37:06,  4.86s/it]  3%|▎         | 12/469 [01:04<37:34,  4.93s/it]  3%|▎         | 13/469 [01:09<37:38,  4.95s/it]  3%|▎         | 14/469 [01:13<37:13,  4.91s/it]  3%|▎         | 15/469 [01:18<37:32,  4.96s/it]  3%|▎         | 16/469 [01:23<36:42,  4.86s/it]  4%|▎         | 17/469 [01:28<36:25,  4.83s/it]  4%|▍         | 18/469 [01:33<37:53,  5.04s/it]  4%|▍         | 19/469 [01:38<36:48,  4.91s/it]  4%|▍         | 20/469 [01:42<35:55,  4.80s/it]  4%|▍         | 21/469 [01:46<31:51,  4.27s/it]  5%|▍         | 22/469 [01:49<30:54,  4.15s/it]  5%|▍         | 23/469 [01:52<28:12,  3.79s/it]  5%|▌         | 24/469 [01:56<28:40,  3.87s/it]  5%|▌         | 25/469 [02:03<33:36,  4.54s/it]  6%|▌         | 26/469 [02:06<30:58,  4.19s/it]  6%|▌         | 27/469 [02:09<29:05,  3.95s/it]  6%|▌         | 28/469 [02:18<40:04,  5.45s/it]  6%|▌         | 29/469 [02:23<38:03,  5.19s/it]  6%|▋         | 30/469 [02:27<35:22,  4.84s/it]  7%|▋         | 31/469 [02:35<41:59,  5.75s/it]  7%|▋         | 32/469 [02:44<49:48,  6.84s/it]  7%|▋         | 33/469 [02:50<48:41,  6.70s/it]  7%|▋         | 34/469 [02:55<43:09,  5.95s/it]  7%|▋         | 35/469 [03:03<48:24,  6.69s/it]  8%|▊         | 36/469 [03:07<42:03,  5.83s/it]  8%|▊         | 37/469 [03:15<46:02,  6.40s/it]  8%|▊         | 38/469 [03:24<52:27,  7.30s/it]  8%|▊         | 39/469 [03:32<54:22,  7.59s/it]  9%|▊         | 40/469 [03:36<45:05,  6.31s/it]  9%|▊         | 41/469 [03:39<39:42,  5.57s/it]  9%|▉         | 42/469 [03:45<39:18,  5.52s/it]  9%|▉         | 43/469 [03:53<45:06,  6.35s/it]  9%|▉         | 44/469 [04:03<51:33,  7.28s/it] 10%|▉         | 45/469 [04:07<45:40,  6.46s/it] 10%|▉         | 46/469 [04:16<50:38,  7.18s/it] 10%|█         | 47/469 [04:19<42:31,  6.05s/it] 10%|█         | 48/469 [04:28<47:14,  6.73s/it] 10%|█         | 49/469 [04:33<44:42,  6.39s/it] 10%|█         | 49/469 [04:34<39:14,  5.61s/it]
+Traceback (most recent call last):
+  File "/home/ngocyen/neural-network-and-deeplearning/train_advanced_model.py", line 396, in <module>
+    loss, n_iter = train_for_epoch(model, train_dataloader, optimizer, device, n_iter, args)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/neural-network-and-deeplearning/train_advanced_model.py", line 217, in train_for_epoch
+    for data in tqdm(dataloader):
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/tqdm/std.py", line 1178, in __iter__
+    for obj in iterable:
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 630, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 673, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 52, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 52, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+            ~~~~~~~~~~~~^^^^^
+  File "/home/ngocyen/neural-network-and-deeplearning/train_advanced_model.py", line 123, in __getitem__
+    image = self.transform(image)
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torchvision/transforms/transforms.py", line 95, in __call__
+    img = t(img)
+          ^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torchvision/transforms/transforms.py", line 277, in forward
+    return F.normalize(tensor, self.mean, self.std, self.inplace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torchvision/transforms/functional.py", line 350, in normalize
+    return F_t.normalize(tensor, mean=mean, std=std, inplace=inplace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torchvision/transforms/_functional_tensor.py", line 926, in normalize
+    return tensor.sub_(mean).div_(std)
+           ^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

@@ -5,7 +5,6 @@ from torchvision import transforms
 import torch.nn as nn
 import os
 from tqdm import tqdm
-import copy
 import argparse
 import string
 from PIL import Image
@@ -196,7 +195,7 @@ def generate_caption(model, image, idx2word, device, max_length=20):
     sentence = ' '.join(words)
     return sentence
 
-def validate(model, dataloader, criterion, device, args):
+def validate(model, dataloader, criterion, device, args, idx2word):
     model.eval()
     total_loss = 0
     total_samples = 0
@@ -223,13 +222,13 @@ def validate(model, dataloader, criterion, device, args):
             # Generate captions for evaluation
             for i in range(images.size(0)):
                 image = images[i]
-                generated_caption = generate_caption(model, image, model.decoder.idx2word, device, max_length=args.max_seq_length)
+                generated_caption = generate_caption(model, image, idx2word, device, max_length=args.max_seq_length)
                 hypotheses.append(generated_caption)
 
                 # Get the reference captions
                 refs = []
                 for ref in references_batch[i]:
-                    ref_tokens = [model.decoder.idx2word[idx.item()] for idx in ref if idx.item() not in [model.decoder.pad_id, model.decoder.sos_id, model.decoder.eos_id]]
+                    ref_tokens = [idx2word[idx.item()] for idx in ref if idx.item() not in [model.decoder.pad_id, model.decoder.sos_id, model.decoder.eos_id]]
                     refs.append(' '.join(ref_tokens))
                 references.append(refs)
 
@@ -269,11 +268,11 @@ def validate(model, dataloader, criterion, device, args):
 
     return average_loss, bleu4, cider_score, rouge_score, meteor_score
 
-def train_model(args):
+def test_model(args):
     # Set device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # Create datasets and dataloaders
+    # Create dataset and dataloader for testing
     transform = transforms.Compose([
         transforms.Resize((args.image_size, args.image_size)),
         transforms.ToTensor(),
@@ -282,118 +281,6 @@ def train_model(args):
             std=[0.229, 0.224, 0.225],
         ),
     ])
-
-    train_dataset = Flickr8kDataset(
-        img_dir=args.img_dir,
-        split_file=args.train_dir,
-        ann_file=args.ann_dir,
-        vocab_file=args.vocab_file,
-        transform=transform,
-        max_seq_length=args.max_seq_length,
-    )
-
-    val_dataset = Flickr8kDataset(
-        img_dir=args.img_dir,
-        split_file=args.val_dir,
-        ann_file=args.ann_dir,
-        vocab_file=args.vocab_file,
-        transform=transform,
-        max_seq_length=args.max_seq_length,
-    )
-
-    train_loader = DataLoader(
-        dataset=train_dataset,
-        batch_size=args.batch_size,
-        shuffle=True,
-        collate_fn=collate_fn,
-    )
-
-    val_loader = DataLoader(
-        dataset=val_dataset,
-        batch_size=args.batch_size,
-        shuffle=False,
-        collate_fn=collate_fn,
-    )
-
-    # Build the model
-    encoder = Encoder(
-        model_type=args.encoder_type,
-        fine_tune=bool(args.fine_tune),
-        embed_size=args.embed_size,  # Pass the embed_size
-    )
-
-    decoder = HierarchicalDecoder(
-        vocab_size=train_dataset.vocab_size,
-        embed_size=args.embed_size,
-        hidden_size=args.hidden_size,
-        num_layers=args.num_layers,
-        num_heads=args.num_heads,
-        dropout=args.dropout,
-        max_seq_length=args.max_seq_length,
-        pad_id=train_dataset.pad_id,
-        sos_id=train_dataset.sos_id,
-        eos_id=train_dataset.eos_id,
-        idx2word=train_dataset.idx2word,
-    )
-
-    model = EncoderDecoder(encoder, decoder)
-    model = model.to(device)
-
-    # Loss and optimizer
-    criterion = nn.CrossEntropyLoss(ignore_index=train_dataset.pad_id)
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=args.learning_rate,
-        betas=(args.beta1, args.beta2),
-    )
-
-    # Training loop
-    best_cider = 0
-    best_epoch = 0
-    poor_iters = 0
-    for epoch in range(1, args.num_epochs + 1):
-        print(f"Epoch {epoch}/{args.num_epochs}")
-
-        train_loss = train_one_epoch(
-            model, train_loader, criterion, optimizer, device, epoch
-        )
-        val_loss, bleu4, cider_score, rouge_score, meteor_score = validate(
-            model, val_loader, criterion, device, args
-        )
-
-        print(f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
-        print(f"BLEU-4: {bleu4:.4f}, CIDEr: {cider_score:.4f}, ROUGE_L: {rouge_score:.4f}, METEOR: {meteor_score:.4f}")
-
-        # Save the best model based on CIDEr score
-        if cider_score > best_cider:
-            poor_iters = 0
-            best_cider = cider_score
-            best_epoch = epoch
-            best_model_state = copy.deepcopy(model.state_dict())
-            torch.save(
-                {
-                    'epoch': epoch,
-                    'model_state_dict': best_model_state,
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': val_loss,
-                    'bleu4': bleu4,
-                    'cider': cider_score,
-                    'rouge': rouge_score,
-                    'meteor': meteor_score,
-                },
-                os.path.join(args.save_dir, f"{args.experiment_name}_best_model.pth"),
-            )
-        else:
-            poor_iters +=1
-
-        if poor_iters > args.patience:
-            print(f"Early stopping after {args.patience} epochs without improvement.")
-            break
-
-    print(f"Training complete. Best CIDEr score: {best_cider:.4f} at epoch {best_epoch}")
-
-    # Load the best model for testing
-    model.load_state_dict(best_model_state)
 
     # Prepare test dataset and dataloader
     test_dataset = Flickr8kDataset(
@@ -412,9 +299,40 @@ def train_model(args):
         collate_fn=collate_fn,
     )
 
+    # Build the model
+    encoder = Encoder(
+        model_type=args.encoder_type,
+        fine_tune=bool(args.fine_tune),
+        embed_size=args.embed_size,
+    )
+
+    decoder = HierarchicalDecoder(
+        vocab_size=test_dataset.vocab_size,
+        embed_size=args.embed_size,
+        hidden_size=args.hidden_size,
+        num_layers=args.num_layers,
+        num_heads=args.num_heads,
+        dropout=args.dropout,
+        max_seq_length=args.max_seq_length,
+        pad_id=test_dataset.pad_id,
+        sos_id=test_dataset.sos_id,
+        eos_id=test_dataset.eos_id,
+        # Removed idx2word to fix the error
+    )
+
+    model = EncoderDecoder(encoder, decoder)
+    model = model.to(device)
+
+    # Load the checkpoint
+    checkpoint = torch.load(args.checkpoint_name, map_location=device)
+    model.load_state_dict(checkpoint['model_state_dict'])
+
+    # Loss function
+    criterion = nn.CrossEntropyLoss(ignore_index=test_dataset.pad_id)
+
     # Evaluate on the test set
     test_loss, test_bleu4, test_cider, test_rouge, test_meteor = validate(
-        model, test_loader, criterion, device, args
+        model, test_loader, criterion, device, args, idx2word=test_dataset.idx2word
     )
 
     print("\nTest Set Evaluation:")
@@ -425,11 +343,9 @@ def train_model(args):
     print(f"Test METEOR: {test_meteor:.4f}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Training Script for Hierarchical Transformer Model')
+    parser = argparse.ArgumentParser(description='Testing Script for Hierarchical Transformer Model')
     parser.add_argument('--img-dir', type=str, default='./dataset/Flickr8k_Dataset/')
     parser.add_argument('--ann-dir', type=str, default='./dataset/Flickr8k_text/Flickr8k.token.txt')
-    parser.add_argument('--train-dir', type=str, default='./dataset/Flickr8k_text/Flickr_8k.trainImages.txt')
-    parser.add_argument('--val-dir', type=str, default='./dataset/Flickr8k_text/Flickr_8k.devImages.txt')
     parser.add_argument('--test-dir', type=str, default='./dataset/Flickr8k_text/Flickr_8k.testImages.txt')
     parser.add_argument('--vocab-file', type=str, default='./vocab.txt')
     parser.add_argument('--encoder-type', type=str, default='resnet50')
@@ -441,19 +357,8 @@ if __name__ == "__main__":
     parser.add_argument('--dropout', type=float, default=0.1)
     parser.add_argument('--max-seq-length', type=int, default=30)
     parser.add_argument('--batch-size', type=int, default=64)
-    parser.add_argument('--learning-rate', type=float, default=0.0001)
-    parser.add_argument('--beta1', type=float, default=0.9)
-    parser.add_argument('--beta2', type=float, default=0.999)
-    parser.add_argument('--num-epochs', type=int, default=20)
-    parser.add_argument('--save-dir', type=str, default='./model_saves/')
-    parser.add_argument('--experiment-name', type=str, default='hierarchical_transformer_experiment')
     parser.add_argument('--image-size', type=int, default=224)
-    parser.add_argument('--mode', type=str, choices=['train', 'test'], default='train')
-    parser.add_argument('--checkpoint-name', type=str, default=None)
-    parser.add_argument('--patience', type=int, default=5)
+    parser.add_argument('--checkpoint-name', type=str, required=True)
     args = parser.parse_args()
 
-    if not os.path.exists(args.save_dir):
-        os.makedirs(args.save_dir)
-
-    train_model(args)
+    test_model(args)

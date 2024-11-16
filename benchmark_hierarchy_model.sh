@@ -14,7 +14,9 @@ run_experiment() {
 }
 
 # Example experiments
-CMD="python train_hierarchy_model.py --encoder-type resnet50 --fine-tune 1 --batch-size 64 --experiment-name resnet50_ft1_hierarchy"
-run_experiment "$CMD" "resnet50_ft1_hierarchy"
+CMD="python train_hierarchy_model.py --encoder-type resnet50 --fine-tune 0 --batch-size 64 --num-epochs 50 --experiment-name resnet50_ft0_hierarchy"
+run_experiment "$CMD" "resnet50_ft0_hierarchy"
+
+python test_hierarchy_model.py --checkpoint-name model_saves/resnet50_ft1_hierarchy_best_model.pth
 
 echo "Hierarchical transformer experiments completed."

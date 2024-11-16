@@ -33,7 +33,7 @@ done
 # Priority 2: Fine-tuning with varying LSTM hidden units
 echo "Priority 2: Fine-tuning experiments (RNN, varying hidden units)"
 
-for ENCODER in resnet18; do
+for ENCODER in resnet50 resnet101; do
   for HIDDEN_SIZE in 256; do
     CMD="python train.py --decoder-hidden-size $HIDDEN_SIZE --encoder-type $ENCODER --experiment-name ${ENCODER}_h${HIDDEN_SIZE}_bs64_ft1 --fine-tune 1 --batch-size 64"
     run_experiment "$CMD" "${ENCODER}_h${HIDDEN_SIZE}_bs64_ft1"

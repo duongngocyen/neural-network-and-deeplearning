@@ -1,0 +1,40 @@
+[nltk_data] Downloading package wordnet to /home/ngocyen/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=ResNet50_Weights.IMAGENET1K_V1`. You can also use `weights=ResNet50_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Using cache found in /home/ngocyen/.cache/torch/hub/intel-isl_MiDaS_master
+Epochs are read correctly:  50
+Encoder type is read correctly:  resnet50
+Number of CNN channels being used:  2048
+Fine tune setting is set to:  True
+Label smoothing set to:  True
+Ground Truth captions:  ['the boy laying face down on a skateboard is being pushed along the ground by another boy', 'two girls play on a skateboard in a courtyard', 'two people play on a long skateboard', 'two small children in red shirts playing on a skateboard', 'two young children on a skateboard going across a sidewalk']
+  0%|          | 0/469 [00:00<?, ?it/s]  0%|          | 1/469 [00:02<22:28,  2.88s/it]  0%|          | 2/469 [00:05<19:29,  2.51s/it]  1%|          | 3/469 [00:07<18:32,  2.39s/it]  1%|          | 4/469 [00:09<18:08,  2.34s/it]  1%|          | 4/469 [00:11<22:45,  2.94s/it]
+Traceback (most recent call last):
+  File "/home/ngocyen/neural-network-and-deeplearning/train_advanced_model.py", line 394, in <module>
+    loss, n_iter = train_for_epoch(model, train_dataloader, optimizer, device, n_iter, args)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/neural-network-and-deeplearning/train_advanced_model.py", line 229, in train_for_epoch
+    logits = model(images, captions).permute(1, 0, 2)  # (seq_len - 1, batch_size, vocab_size)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/neural-network-and-deeplearning/model_advanced.py", line 583, in forward
+    h = self.encoder(images)  # (L, N, H)
+        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/anaconda3/envs/Inference/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ngocyen/neural-network-and-deeplearning/model_advanced.py", line 74, in forward
+    mean = torch.tensor([0.485, 0.456, 0.406], device=images.device).view(1, 3, 1, 1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

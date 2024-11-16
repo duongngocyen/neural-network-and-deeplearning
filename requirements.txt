@@ -1,5 +1,5 @@
 torch
 torchvision
-transformers
 nltk
-tensorboard
+pycocoevalcap
+Pillow

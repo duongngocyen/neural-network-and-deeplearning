@@ -1,6 +1,6 @@
-# Neural Network and Deep Learning Project
+# Neural Network and Deep Learning Project: Flickr8k Dataset
 
-This project implements an image captioning system that integrates CNN-based feature extraction with RNN and Transformer-based caption generation. The MS COCO dataset is used for training and evaluation.
+This project implements an image captioning system that integrates CNN-based feature extraction with RNN, Transformer, and Hierarchical Transformer-based caption generation. The Flickr8k dataset is used for training and evaluation.
 
 ---
 
@@ -14,99 +14,98 @@ pip install -r requirements.txt
 
 ---
 
-## 2. Download COCO Dataset
+## 2. Download Flickr8k Dataset
 
-To download the MS COCO dataset, run the following command:
-
-```bash
-bash script/download_coco.sh
-```
-
-The dataset will be stored in the `data/coco` folder with the following structure:
+Download the Flickr8k dataset manually from [Flickr8k Dataset](https://forms.illinois.edu/sec/1713398) and place the extracted files in the `dataset` folder. The folder structure should look like this:
 
 ```
-data/coco/
-├── train2017/          # Training images
-├── val2017/            # Validation images
-└── annotations/        # JSON annotation files
+dataset/
+├── Flickr8k_Dataset/         # Images
+├── Flickr8k_text/            # Text annotations
+│   ├── Flickr8k.token.txt    # Captions
+│   ├── Flickr_8k.trainImages.txt # Train split
+│   ├── Flickr_8k.devImages.txt   # Validation split
+│   └── Flickr_8k.testImages.txt  # Test split
 ```
 
 ---
 
-## 3. Extract Features Using CNN
+## 3. Train and Evaluate Models
 
-To extract features from the images using a pretrained CNN (e.g., ResNet50), run:
-
-```bash
-python src/feature_extractor.py --image_dir data/coco/train2017 --output_file data/coco/features_train.pt
-```
-
-The extracted features will be saved in the `data/coco/features_train.pt` file. 
-
----
-
-## 4. Train Models
+This project includes training scripts for various models. You can run the respective scripts to train and evaluate them:
 
 ### Train the RNN Model
 
-To train the RNN-based captioning model, run:
+To benchmark the RNN-based captioning model:
 
 ```bash
-python src/train.py --model rnn --data_dir data/coco/features_train.pt --annotation_file data/coco/annotations/captions_train2017.json --epochs 10
+sh benchmark_rnn.sh
 ```
-
-The trained model will be saved in the `model` folder.
 
 ### Train the Transformer Model
 
-To train the Transformer-based captioning model, run:
+To benchmark the Transformer-based captioning model:
 
 ```bash
-python src/train.py --model transformer --data_dir data/coco/features_train.pt --annotation_file data/coco/annotations/captions_train2017.json --epochs 10
+sh benchmark_transformer.sh
 ```
 
-The trained model will also be saved in the `model` folder.
+### Train the BLIP Model
+
+To train the BLIP model:
+
+```bash
+sh train_blip.sh
+```
+
+### Train the Hierarchical Transformer Model
+
+To train the Hierarchical Transformer model:
+
+```bash
+sh benchmark_hierarchy_model.sh
+
+```
 
 ---
 
-## 5. Evaluate Models
+## 4. Evaluate Models
 
-To evaluate a trained model, use the `evaluate.py` script. You can compute metrics such as BLEU and METEOR:
-
-```bash
-python src/evaluate.py --model_path model/transformer_captioning.pth --data_dir data/coco/features_val.pt --annotation_file data/coco/annotations/captions_val2017.json
-```
+After training, you can evaluate each model using their respective scripts. The evaluation results will include metrics such as BLEU, CIDEr, ROUGE, and METEOR.
 
 ---
 
-## 6. Project Structure
+## 5. Project Structure
 
 ```
 <root>
-├── data/
-│   ├── coco/                      # MS COCO dataset
-│       ├── train2017/             # Training images
-│       ├── val2017/               # Validation images
-│       └── annotations/           # Annotations (JSON)
-├── log/                           # Logs for training/testing
-├── model/                         # Save trained models
+├── dataset/                     # Dataset folder
+│   ├── Flickr8k_Dataset/        # Flickr8k images
+│   ├── Flickr8k_text/           # Text annotations and splits
+│   └── vocab.txt                # Vocabulary file
+├── log/                         # Logs for training/testing
+├── model/                       # Save trained models
 ├── script/
-│   ├── download_coco.sh           # Script to download the COCO dataset
+│   ├── benchmark_rnn.sh         # Script to train and benchmark RNN
+│   ├── benchmark_transformer.sh # Script to train and benchmark Transformer
+│   ├── train_blip.sh            # Script to train BLIP
+│   ├── hierarchical_model.sh    # Script to train Hierarchical Transformer
 ├── src/
-│   ├── dataset.py                 # Dataset loader for COCO
-│   ├── feature_extractor.py       # CNN for feature extraction
-│   ├── rnn_model.py               # RNN-based captioning model
-│   ├── transformer_model.py       # Transformer-based captioning model
-│   ├── train.py                   # Training logic
-│   ├── evaluate.py                # Evaluation script
-│   └── utils.py                   # Utility functions
-├── requirements.txt               # Dependencies
-└── README.md                      # Project documentation
+│   ├── dataset.py               # Dataset loader for Flickr8k
+│   ├── feature_extractor.py     # CNN for feature extraction
+│   ├── rnn_model.py             # RNN-based captioning model
+│   ├── transformer_model.py     # Transformer-based captioning model
+│   ├── hierarchical_model.py    # Hierarchical Transformer model
+│   ├── train.py                 # Training logic
+│   ├── evaluate.py              # Evaluation script
+│   └── utils.py                 # Utility functions
+├── requirements.txt             # Dependencies
+└── README.md                    # Project documentation
 ```
 
 ---
 
-## 7. Dependencies
+## 6. Dependencies
 
 The project requires the following Python packages, listed in `requirements.txt`:
 
@@ -114,7 +113,7 @@ The project requires the following Python packages, listed in `requirements.txt`
 - `torchvision`
 - `transformers`
 - `nltk`
-- `tensorboard`
+- `pycocoevalcap`
 
 To install the dependencies:
 
@@ -124,6 +123,7 @@ pip install -r requirements.txt
 
 ---
 
-## 9. Acknowledgments
+## 7. Acknowledgments
 
-This project uses the MS COCO dataset and leverages pretrained CNNs and Transformers for feature extraction and text generation. The work is inspired by recent advances in computer vision and natural language processing.
+This project uses the Flickr8k dataset and leverages pretrained CNNs, RNNs, Transformers, and hierarchical models for image captioning. It is inspired by advances in computer vision and natural language processing.
+```
